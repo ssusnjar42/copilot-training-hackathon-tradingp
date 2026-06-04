@@ -122,4 +122,4 @@ While implementation is in progress, keep an eye on the following:
 
 # Models and Costs
 
-GPT 5.5 (medium) - AI Credits: 692
+GPT 5.5 (medium) - AI Credits: 788
