@@ -1,3 +1,5 @@
+# TEST
+
 ![Copilot Hackathon Banner - Advanced](banner_advanced.svg)
 Welcome to the advanced GitHub Copilot hackathon. This is a hands-on group exercise designed to be completed over the course of a few hours. You will work in small teams (ideally 3–4 people sharing one driver's screen, rotating regularly) to build a non-trivial application end-to-end while exercising the full breadth of Copilot's advanced capabilities — custom instructions, the Plan Agent, custom Skills, MCP servers, spec-driven development, and subagent orchestration.
 
