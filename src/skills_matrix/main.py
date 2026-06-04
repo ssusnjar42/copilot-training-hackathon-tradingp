@@ -305,11 +305,14 @@ def render_heatmap(team: str | None = None) -> None:
         with ui.row().classes("items-center gap-2 font-bold"):
             ui.label("Engineer").classes("w-48")
             for skill in skills:
-                ui.label(skill.name).classes("w-32 text-center text-xs")
+                tooltip = f"{skill.category} - {skill.description}" if skill.description else skill.category
+                ui.label(skill.name).classes("w-32 text-center text-xs").tooltip(tooltip)
 
         for row in rows:
             with ui.row().classes("items-center gap-2"):
-                ui.label(row.engineer.name).classes("w-48 font-medium text-right pr-2")
+                ui.label(row.engineer.name).classes(
+                    "w-48 font-medium text-right pr-2"
+                ).tooltip(f"{row.engineer.team} - {row.engineer.role}")
                 for skill in skills:
                     render_skill_score_button(
                         engineer_id=row.engineer.id or 0,
