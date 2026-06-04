@@ -81,11 +81,7 @@ def build_pages() -> None:
             with ui.row().classes("items-center gap-4 w-full"):
                 ui.label(item.skill.name).classes("w-48 font-medium")
                 ui.label(f"Target {item.skill.target_level}").classes("w-24")
-                ui.select(
-                    options=list(range(MIN_LEVEL, MAX_LEVEL + 1)),
-                    value=item.level,
-                    on_change=lambda event, skill_id=item.skill.id: update_competency(engineer_id, skill_id, event.value),
-                ).classes("w-32")
+                render_skill_score_button(engineer_id, item.skill.id, item.level)
                 ui.label(f"Gap {item.gap}").classes("w-20")
 
         ui.separator().classes("my-4")
@@ -183,11 +179,11 @@ def render_skill_form() -> None:
         ui.label("Add skill").classes("text-xl font-bold")
         name = ui.input("Name").classes("w-full")
         category = ui.input("Category").classes("w-full")
-        target_level = ui.select(options=list(range(MIN_LEVEL, MAX_LEVEL + 1)), value=3, label="Target level").classes("w-48")
+        target_level = render_level_picker(3, "Target level")
         description = ui.textarea("Description").classes("w-full")
 
         def save() -> None:
-            service.create_skill(name.value, category.value, int(target_level.value), description.value or "")
+            service.create_skill(name.value, category.value, target_level["value"], description.value or "")
             ui.notify("Skill added")
             ui.navigate.reload()
 
@@ -200,11 +196,7 @@ def render_skills_table() -> None:
         with ui.card().classes("w-full"):
             name = ui.input("Name", value=skill.name).classes("w-full")
             category = ui.input("Category", value=skill.category).classes("w-full")
-            target_level = ui.select(
-                options=list(range(MIN_LEVEL, MAX_LEVEL + 1)),
-                value=skill.target_level,
-                label="Target level",
-            ).classes("w-48")
+            target_level = render_level_picker(skill.target_level, "Target level")
             description = ui.textarea("Description", value=skill.description).classes("w-full")
 
             def save(
@@ -220,7 +212,7 @@ def render_skills_table() -> None:
                     skill_id,
                     name_input.value,
                     category_input.value,
-                    int(target_input.value),
+                    target_input["value"],
                     description_input.value or "",
                 )
                 ui.notify("Skill updated")
@@ -236,6 +228,28 @@ def render_skills_table() -> None:
             with ui.row().classes("gap-2"):
                 ui.button("Save", on_click=save)
                 ui.button("Delete", on_click=delete).props("color=negative")
+
+
+def render_level_picker(initial_level: int, label: str) -> dict[str, int]:
+    state = {"value": initial_level}
+    ui.label(label).classes("font-medium")
+    button = ui.button(str(initial_level)).classes(
+        "w-32 h-8 rounded-md font-semibold text-sm shadow-none"
+    ).props("unelevated no-caps").style(
+        replace=skill_score_button_style(initial_level),
+    )
+
+    def update(event: events.GenericEventArguments) -> None:
+        is_shift_click = bool(event.args.get("shiftKey")) if isinstance(event.args, dict) else bool(event.args)
+        if is_shift_click:
+            state["value"] = MAX_LEVEL if state["value"] <= MIN_LEVEL else state["value"] - 1
+        else:
+            state["value"] = MIN_LEVEL if state["value"] >= MAX_LEVEL else state["value"] + 1
+        button.set_text(str(state["value"]))
+        button.style(replace=skill_score_button_style(state["value"]))
+
+    button.on("click", update, args=["shiftKey"]).tooltip("Click to increase; Shift-click to decrease")
+    return state
 
 
 def render_engineer_form() -> None:
@@ -297,14 +311,14 @@ def render_heatmap(team: str | None = None) -> None:
             with ui.row().classes("items-center gap-2"):
                 ui.label(row.engineer.name).classes("w-48 font-medium text-right pr-2")
                 for skill in skills:
-                    render_heatmap_level_button(
+                    render_skill_score_button(
                         engineer_id=row.engineer.id or 0,
                         skill_id=skill.id,
                         level=row.levels_by_skill_id.get(skill.id or 0, 0),
                     )
 
 
-def render_heatmap_level_button(engineer_id: int, skill_id: int | None, level: int) -> None:
+def render_skill_score_button(engineer_id: int, skill_id: int | None, level: int) -> None:
     next_level = MIN_LEVEL if level >= MAX_LEVEL else level + 1
     previous_level = MAX_LEVEL if level <= MIN_LEVEL else level - 1
 
@@ -316,11 +330,17 @@ def render_heatmap_level_button(engineer_id: int, skill_id: int | None, level: i
     ui.button(str(level)).on("click", update, args=["shiftKey"]).classes(
         "w-32 h-8 rounded-md font-semibold text-sm shadow-none"
     ).props("unelevated no-caps").style(
+        skill_score_button_style(level)
+    ).tooltip(f"Click to increase to {next_level}; Shift-click to decrease to {previous_level}")
+
+
+def skill_score_button_style(level: int) -> str:
+    return (
         f"background: {HEATMAP_LEVEL_COLORS.get(level, HEATMAP_LEVEL_COLORS[0])} !important; "
         "color: #c8e4ff !important; "
         "border: 1px solid rgba(200, 228, 255, 0.16); "
         "opacity: 0.95;"
-    ).tooltip(f"Click to increase to {next_level}; Shift-click to decrease to {previous_level}")
+    )
 
 
 def render_gap_analysis() -> None:
