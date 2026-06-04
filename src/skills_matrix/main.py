@@ -287,15 +287,15 @@ def render_heatmap(team: str | None = None) -> None:
         ui.label("No heatmap data available.")
         return
 
-    with ui.column().classes("gap-2 rounded-xl p-4").style("background-color: #0d1f38;"):
+    with ui.column().classes("gap-2 rounded-xl p-4"):
         with ui.row().classes("items-center gap-2 font-bold"):
-            ui.label("Engineer").classes("w-48").style("color: #7aa8d4;")
+            ui.label("Engineer").classes("w-48")
             for skill in skills:
-                ui.label(skill.name).classes("w-32 text-center text-xs").style("color: #7aa8d4;")
+                ui.label(skill.name).classes("w-32 text-center text-xs")
 
         for row in rows:
             with ui.row().classes("items-center gap-2"):
-                ui.label(row.engineer.name).classes("w-48 font-medium text-right pr-2").style("color: #7aa8d4;")
+                ui.label(row.engineer.name).classes("w-48 font-medium text-right pr-2")
                 for skill in skills:
                     render_heatmap_level_button(
                         engineer_id=row.engineer.id or 0,
