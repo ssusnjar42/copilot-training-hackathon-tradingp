@@ -3,6 +3,27 @@ Welcome to the advanced GitHub Copilot hackathon. This is a hands-on group exerc
 
 The goal is **not** to finish every section. The goal is to experiment with each technique, discuss what works and what doesn't with your team, and leave with a feel for how to combine these tools in your day-to-day work. Treat the steps below as a guided menu: move at a pace that lets you actually reflect on each step, and skip ahead if a section is less relevant to your team.
 
+## Current implementation
+
+This repository now includes a Python/NiceGUI implementation of the Team Skills Matrix Platform with SQLite persistence and demo seed data.
+
+```powershell
+python -m pip install -e .[dev]
+python -m skills_matrix.main
+```
+
+Run the unit tests with:
+
+```powershell
+python -m pytest
+```
+
+Run a single test with:
+
+```powershell
+python -m pytest tests\test_matrix_service.py::test_gap_analysis_orders_largest_gap_first
+```
+
 ## 🛠️ 1. Preparations
 
 
