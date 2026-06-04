@@ -6,6 +6,7 @@ This repository implements the advanced GitHub Copilot hackathon assignment as a
 
 - Install dependencies: `python -m pip install -e .[dev]`
 - Run the app: `python -m skills_matrix.main` or `skills-matrix`
+- Optional persisted user preference secret: set `SKILLS_MATRIX_STORAGE_SECRET` before running the app; otherwise a development default is used.
 - Run all tests: `python -m pytest`
 - Run a single test: `python -m pytest tests\test_matrix_service.py::test_gap_analysis_orders_largest_gap_first`
 - Compile check: `python -m compileall src tests`

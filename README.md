@@ -12,6 +12,8 @@ python -m pip install -e .[dev]
 python -m skills_matrix.main
 ```
 
+Set `SKILLS_MATRIX_STORAGE_SECRET` before starting the app to override the development storage secret used for persisted user preferences such as theme selection.
+
 Run the unit tests with:
 
 ```powershell

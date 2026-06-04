@@ -1,17 +1,41 @@
 from __future__ import annotations
 
-from nicegui import ui
+import os
+from typing import Any
+
+from nicegui import app, ui
+from nicegui.elements.dark_mode import DarkMode
 
 from skills_matrix.app_factory import create_service
 from skills_matrix.domain.models import MAX_LEVEL, MIN_LEVEL
+from skills_matrix.services.matrix_service import MatrixService
 
 
-service = create_service()
+class LazyMatrixService:
+    _service: MatrixService | None = None
+
+    def _get(self) -> MatrixService:
+        if self._service is None:
+            self._service = create_service()
+        return self._service
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._get(), name)
+
+
+service = LazyMatrixService()
+THEME_STORAGE_KEY = "theme"
+DARK_THEME = "dark"
+LIGHT_THEME = "light"
+STORAGE_SECRET_ENV = "SKILLS_MATRIX_STORAGE_SECRET"
 
 
 def run() -> None:
     build_pages()
-    ui.run(title="Team Skills Matrix")
+    ui.run(
+        title="Team Skills Matrix",
+        storage_secret=os.environ.get(STORAGE_SECRET_ENV, "skills-matrix-development-secret"),
+    )
 
 
 def build_pages() -> None:
@@ -100,10 +124,13 @@ def build_pages() -> None:
 
 
 def page_frame(title: str) -> None:
+    dark_mode = ui.dark_mode()
+    is_dark = app_storage_theme() == DARK_THEME
+    dark_mode.set_value(is_dark)
     ui.page_title(title)
     with ui.header().classes("items-center justify-between"):
         ui.label("Team Skills Matrix").classes("text-xl font-bold")
-        with ui.row().classes("gap-3"):
+        with ui.row().classes("items-center gap-3"):
             for label, target in [
                 ("Dashboard", "/"),
                 ("Skills", "/skills"),
@@ -113,7 +140,28 @@ def page_frame(title: str) -> None:
                 ("Recommendations", "/recommendations"),
             ]:
                 ui.link(label, target).classes("text-white")
+            render_theme_toggle(dark_mode, is_dark)
     ui.label(title).classes("text-3xl font-bold my-4")
+
+
+def render_theme_toggle(dark_mode: DarkMode, is_dark: bool) -> None:
+    def toggle_theme() -> None:
+        next_is_dark = not dark_mode.value
+        dark_mode.set_value(next_is_dark)
+        app.storage.user[THEME_STORAGE_KEY] = DARK_THEME if next_is_dark else LIGHT_THEME
+        ui.notify(f"{'Dark' if next_is_dark else 'Light'} theme selected")
+        ui.navigate.reload()
+
+    ui.button(
+        "Dark theme" if not is_dark else "Light theme",
+        icon="dark_mode" if not is_dark else "light_mode",
+        on_click=toggle_theme,
+    )
+
+
+def app_storage_theme() -> str:
+    theme = app.storage.user.get(THEME_STORAGE_KEY, LIGHT_THEME)
+    return DARK_THEME if theme == DARK_THEME else LIGHT_THEME
 
 
 def metric_card(label: str, value: str) -> None:
