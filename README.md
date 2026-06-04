@@ -119,3 +119,7 @@ While implementation is in progress, keep an eye on the following:
 ## 🕵️ 9. Bonus exercise: Custom Agents
 1. Using subagent orchestration patterns, design a custom agent for reviewing the application code. Name the agent "Thorough Reviewer." Define 2-3 review perspectives, then implement the agent to use subagents to investigate the repository and report issues from each perspective.
 2. Implement an IaC-focused custom agent. The team should choose a target platform (for example, a Kubernetes cluster or a FaaS environment), then create an agent that uses an infrastructure framework (for example, Pulumi, Terraform, or Ansible) to define the infrastructure required by the application and automate deployment. Finally, use the agent to implement the IaC code.
+
+# Models and Costs
+
+GPT 5.5 (medium) - AI Credits: 692
