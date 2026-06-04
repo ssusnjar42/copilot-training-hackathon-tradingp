@@ -28,6 +28,14 @@ THEME_STORAGE_KEY = "theme"
 DARK_THEME = "dark"
 LIGHT_THEME = "light"
 STORAGE_SECRET_ENV = "SKILLS_MATRIX_STORAGE_SECRET"
+HEATMAP_LEVEL_COLORS = {
+    0: "#06182f",
+    1: "#0a3566",
+    2: "#0f4c8a",
+    3: "#1e6fb5",
+    4: "#2a8fd4",
+    5: "#63c7ff",
+}
 
 
 def run() -> None:
@@ -279,24 +287,38 @@ def render_heatmap(team: str | None = None) -> None:
         ui.label("No heatmap data available.")
         return
 
-    with ui.row().classes("items-center gap-2 font-bold"):
-        ui.label("Engineer").classes("w-48")
-        for skill in skills:
-            ui.label(skill.name).classes("w-32 text-center")
-
-    for row in rows:
-        with ui.row().classes("items-center gap-2"):
-            ui.label(row.engineer.name).classes("w-48 font-medium")
+    with ui.column().classes("gap-2 rounded-xl p-4").style("background-color: #0d1f38;"):
+        with ui.row().classes("items-center gap-2 font-bold"):
+            ui.label("Engineer").classes("w-48").style("color: #7aa8d4;")
             for skill in skills:
-                ui.select(
-                    options=list(range(MIN_LEVEL, MAX_LEVEL + 1)),
-                    value=row.levels_by_skill_id.get(skill.id or 0, 0),
-                    on_change=lambda event, engineer_id=row.engineer.id, skill_id=skill.id: update_competency(
-                        engineer_id or 0,
-                        skill_id,
-                        event.value,
-                    ),
-                ).classes("w-32")
+                ui.label(skill.name).classes("w-32 text-center text-xs").style("color: #7aa8d4;")
+
+        for row in rows:
+            with ui.row().classes("items-center gap-2"):
+                ui.label(row.engineer.name).classes("w-48 font-medium text-right pr-2").style("color: #7aa8d4;")
+                for skill in skills:
+                    render_heatmap_level_button(
+                        engineer_id=row.engineer.id or 0,
+                        skill_id=skill.id,
+                        level=row.levels_by_skill_id.get(skill.id or 0, 0),
+                    )
+
+
+def render_heatmap_level_button(engineer_id: int, skill_id: int | None, level: int) -> None:
+    next_level = MIN_LEVEL if level >= MAX_LEVEL else level + 1
+
+    def update() -> None:
+        update_competency(engineer_id, skill_id, next_level)
+        ui.navigate.reload()
+
+    ui.button(str(level), on_click=update).classes(
+        "w-32 h-8 rounded-md font-semibold text-sm shadow-none"
+    ).props("unelevated no-caps").style(
+        f"background: {HEATMAP_LEVEL_COLORS.get(level, HEATMAP_LEVEL_COLORS[0])} !important; "
+        "color: #c8e4ff !important; "
+        "border: 1px solid rgba(200, 228, 255, 0.16); "
+        "opacity: 0.95;"
+    ).tooltip(f"Click to set level {next_level}")
 
 
 def render_gap_analysis() -> None:
