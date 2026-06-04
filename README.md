@@ -4,6 +4,8 @@ Welcome to the advanced GitHub Copilot hackathon. This is a hands-on group exerc
 The goal is **not** to finish every section. The goal is to experiment with each technique, discuss what works and what doesn't with your team, and leave with a feel for how to combine these tools in your day-to-day work. Treat the steps below as a guided menu: move at a pace that lets you actually reflect on each step, and skip ahead if a section is less relevant to your team.
 
 ## 🛠️ 1. Preparations
+
+
 1. Create a shared repository for the project so your team can collaborate on the implementation (for example, in your company's source control system or a personal GitHub account).
 1. Align on the language and technology stack you want to use. Since Copilot will support most of the implementation, a solid general programming understanding is usually enough regardless of the stack you choose.
 1. Pick the first "driver" and start the assignment using screen sharing.
