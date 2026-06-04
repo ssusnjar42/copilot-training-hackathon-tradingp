@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from nicegui import app, ui
+from nicegui import app, events, ui
 from nicegui.elements.dark_mode import DarkMode
 
 from skills_matrix.app_factory import create_service
@@ -306,19 +306,21 @@ def render_heatmap(team: str | None = None) -> None:
 
 def render_heatmap_level_button(engineer_id: int, skill_id: int | None, level: int) -> None:
     next_level = MIN_LEVEL if level >= MAX_LEVEL else level + 1
+    previous_level = MAX_LEVEL if level <= MIN_LEVEL else level - 1
 
-    def update() -> None:
-        update_competency(engineer_id, skill_id, next_level)
+    def update(event: events.GenericEventArguments) -> None:
+        is_shift_click = bool(event.args.get("shiftKey")) if isinstance(event.args, dict) else bool(event.args)
+        update_competency(engineer_id, skill_id, previous_level if is_shift_click else next_level)
         ui.navigate.reload()
 
-    ui.button(str(level), on_click=update).classes(
+    ui.button(str(level)).on("click", update, args=["shiftKey"]).classes(
         "w-32 h-8 rounded-md font-semibold text-sm shadow-none"
     ).props("unelevated no-caps").style(
         f"background: {HEATMAP_LEVEL_COLORS.get(level, HEATMAP_LEVEL_COLORS[0])} !important; "
         "color: #c8e4ff !important; "
         "border: 1px solid rgba(200, 228, 255, 0.16); "
         "opacity: 0.95;"
-    ).tooltip(f"Click to set level {next_level}")
+    ).tooltip(f"Click to increase to {next_level}; Shift-click to decrease to {previous_level}")
 
 
 def render_gap_analysis() -> None:
